@@ -3,6 +3,7 @@
 # note:
 # - error 'ERROR: Request Entity Too Large' for file 1.1 mb
 # <span style="color:red;">ERROR: Request Entity Too Large</span>
+from collections import OrderedDict
 from pprint import pprint
 import os
 
@@ -41,16 +42,47 @@ class Session:
         return p.tables
 
 
+def convert_raw_to_hydrus(raw_input):
+    """convert raw format to hydrus format."""
+    log = structlog.getLogger()
+    # convert list to dict with category as key.
+    dict_result = OrderedDict()
+    result = []
+    for table in raw_input:
+        row_text = []
+        for row in table[1:]:
+            row_text.append(row[1])
+        dict_result[table[0][1]] = row_text
+
+    for key in dict_result:
+        if key == 'Character Tag':
+            result.append('\n'.join(['character:{}'.format(x) for x in dict_result[key]]))
+        elif key == 'Copyright Tag':
+            result.append('\n'.join(['series:{}'.format(x) for x in dict_result[key]]))
+        elif key == 'Rating':
+            result.append('rating:{}'.format(dict_result[key][0]))
+        else:
+            if key != 'General Tag':
+                # log unknown key
+                log.debug('key', v=key)
+            result.append('\n'.join([x for x in dict_result[key]]))
+    return '\n'.join(result)
+
+
 @click.command()
+@click.option('--format', type=click.Choice(['raw', 'hydrus']), default='raw')
 @click.argument('path', nargs=-1)
-def main(path):
+def main(format, path):
     """get tag from illustration2vec."""
     session = Session()
     try:
         for p in path:
             print('path:{}'.format(os.path.basename(p)))
             tags = session.get_tags(path=p)
-            pprint(tags)
+            if format == 'hydrus':
+                print(convert_raw_to_hydrus(tags))
+            else:
+                pprint(tags)
     finally:
         session.browser.quit()
 
