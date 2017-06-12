@@ -64,7 +64,7 @@ Installation
 
 Pip install from this github.
 
-.. code: bash
+.. code:: bash
 
     pip install git+git://github.com/rachmadaniHaryono/i2vec_cli.git
 
