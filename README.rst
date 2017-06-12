@@ -6,9 +6,58 @@ Use illustration2vec.net from cli
 Usage
 -----
 
-.. code: bash
+Example usage
 
-    i2vec_cli cat.jpg
+The content of the following directive
+
+.. code:: bash
+
+ i2vec-cli cat.jpg
+ # result
+ path:cat.jpg
+ [[['#', 'General Tag', 'Confidence', ''],
+   ['1.', 'chibi', '', '78.5%'],
+   ['2.', 'no humans', '', '37.5%'],
+   ['3.', 'cat ears', '', '29.6%'],
+  [['#', 'Character Tag', '', ''],
+   ['1.', 'gilgamesh', '', '56.0%'],
+   ['2.', 'beatrice', '', '40.8%'],
+   ['3.', 'kotomine kirei', '', '24.8%']],
+  [['#', 'Copyright Tag', '', ''],
+   ['1.', 'fate (series)', '', '80.1%'],
+   ['2.', 'fate/zero', '', '65.8%'],
+   ['3.', 'umineko no naku koro ni', '', '24.6%'],
+   ['4.', 'disney', '', '0.686%']],
+  [['#', 'Rating', '', ''],
+   ['1.', 'safe', '', '93.6%'],
+   ['2.', 'questionable', '', '4.74%']]]
+
+or using hydrus format
+
+.. code:: bash
+
+ i2vec-cli cat.jpg --format hydrus
+ # result
+ path:cat.jpg
+ chibi
+ no humans
+ cat ears
+ :3
+ food
+ parody
+ cat
+ english
+ o o
+ bird
+ crossover
+ character:gilgamesh
+ character:beatrice
+ character:kotomine kirei
+ series:fate (series)
+ series:fate/zero
+ series:umineko no naku koro ni
+ series:disney
+ rating:safe
 
 Installation
 ------------
