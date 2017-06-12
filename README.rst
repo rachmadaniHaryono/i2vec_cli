@@ -62,11 +62,13 @@ or using hydrus format
 Installation
 ------------
 
-Pip install from this github.
+clone the repo and pip install from this github.
 
 .. code:: bash
 
-    pip install git+git://github.com/rachmadaniHaryono/i2vec_cli.git
+   git clone https://github.com/rachmadaniHaryono/i2vec_cli
+   cd i2vec_cli
+   pip install .
 
 Requirements
 ^^^^^^^^^^^^
