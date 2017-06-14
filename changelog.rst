@@ -7,6 +7,8 @@ Changelog
 Fix
 ~~~
 
+- Empty space when tag on certain keys empty. [rachmadaniHaryono]
+
 - IndexError on empty result. [rachmadaniHaryono]
 
 0.1.0 (unreleased)
