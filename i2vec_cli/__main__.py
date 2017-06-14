@@ -59,14 +59,14 @@ def convert_raw_to_hydrus(raw_input):
             result.append('\n'.join(['character:{}'.format(x) for x in dict_result[key]]))
         elif key == 'Copyright Tag':
             result.append('\n'.join(['series:{}'.format(x) for x in dict_result[key]]))
-        elif key == 'Rating':
+        elif key == 'Rating' and dict_result[key]:
             result.append('rating:{}'.format(dict_result[key][0]))
         else:
             if key != 'General Tag':
                 # log unknown key
                 log.debug('key', v=key)
             result.append('\n'.join([x for x in dict_result[key]]))
-    return '\n'.join(result)
+    return '\n'.join(result).strip()
 
 
 @click.command()
@@ -74,13 +74,17 @@ def convert_raw_to_hydrus(raw_input):
 @click.argument('path', nargs=-1)
 def main(format, path):
     """get tag from illustration2vec."""
+    log = structlog.getLogger()
     session = Session()
     try:
         for p in path:
             print('path:{}'.format(os.path.basename(p)))
             tags = session.get_tags(path=p)
             if format == 'hydrus':
-                print(convert_raw_to_hydrus(tags))
+                res = convert_raw_to_hydrus(tags)
+                print(res)
+                if not res:
+                    log.debug('Empty res value', v=res)
             else:
                 pprint(tags)
     finally:
