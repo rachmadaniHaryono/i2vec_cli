@@ -42,30 +42,49 @@ class Session:
         return p.tables
 
 
+def convert_tag_dict_to_string(dict_input):
+    """convert tag dict to string."""
+    # compatibility
+    dict_result = dict_input
+
+    log = structlog.getLogger()
+
+    for key in dict_result:
+        if key == 'Character Tag':
+            tag = '\n'.join(['character:{}'.format(x) for x in dict_result[key]])
+            if not tag:
+                continue
+            yield tag
+        elif key == 'Copyright Tag':
+            tag = '\n'.join(['series:{}'.format(x) for x in dict_result[key]])
+            if not tag:
+                continue
+            yield tag
+        elif key == 'Rating' and dict_result[key]:
+            tag = 'rating:{}'.format(dict_result[key][0])
+            yield tag
+        else:
+            if key != 'General Tag':
+                # log unknown key
+                log.debug('key', v=key)
+            tag = '\n'.join([x for x in dict_result[key]])
+            if not tag:
+                continue
+            yield tag
+
+
 def convert_raw_to_hydrus(raw_input):
     """convert raw format to hydrus format."""
-    log = structlog.getLogger()
     # convert list to dict with category as key.
     dict_result = OrderedDict()
-    result = []
     for table in raw_input:
         row_text = []
         for row in table[1:]:
             row_text.append(row[1])
         dict_result[table[0][1]] = row_text
 
-    for key in dict_result:
-        if key == 'Character Tag':
-            result.append('\n'.join(['character:{}'.format(x) for x in dict_result[key]]))
-        elif key == 'Copyright Tag':
-            result.append('\n'.join(['series:{}'.format(x) for x in dict_result[key]]))
-        elif key == 'Rating' and dict_result[key]:
-            result.append('rating:{}'.format(dict_result[key][0]))
-        else:
-            if key != 'General Tag':
-                # log unknown key
-                log.debug('key', v=key)
-            result.append('\n'.join([x for x in dict_result[key]]))
+    result = list(convert_tag_dict_to_string(dict_result))
+
     return '\n'.join(result).strip()
 
 
@@ -74,7 +93,6 @@ def convert_raw_to_hydrus(raw_input):
 @click.argument('path', nargs=-1)
 def main(format, path):
     """get tag from illustration2vec."""
-    log = structlog.getLogger()
     session = Session()
     try:
         for p in path:
@@ -83,8 +101,6 @@ def main(format, path):
             if format == 'hydrus':
                 res = convert_raw_to_hydrus(tags)
                 print(res)
-                if not res:
-                    log.debug('Empty res value', v=res)
             else:
                 pprint(tags)
     finally:
