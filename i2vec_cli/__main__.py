@@ -7,9 +7,13 @@ from collections import OrderedDict
 from pprint import pprint
 import logging
 import os
+import shutil
+import urllib
+import imghdr
 
 from splinter import Browser
 import click
+import requests
 import selenium
 import structlog
 
@@ -32,11 +36,15 @@ class Session:
     def get_tags(self, path):
         """get tags."""
         input_tags = self.browser.find_by_xpath("//input[contains(@id, 'ajax-upload-id')]")
+        real_path = os.path.realpath(path)
         try:
-            input_tags[0].type(path)
+            input_tags[0].type(real_path)
         except selenium.common.exceptions.ElementNotVisibleException as e:
             self.log.error('Error', e=e)
-            input_tags[1].type(path)
+            if len(input_tags) > 1:
+                input_tags[1].type(real_path)
+            else:
+                self.log.error('Input tag not found.')
         bb_tag = self.browser.find_by_css('.box-body')[1]
         p = HTMLTableParser()
         p.feed(bb_tag.html.strip())
@@ -52,18 +60,18 @@ def convert_tag_dict_to_string(dict_input):
 
     for key in dict_result:
         if key == 'Character Tag':
-            tag = '\n'.join(['character:{}'.format(x) for x in dict_result[key]])
+            tag = '\n'.join(['character:{}'.format(x) for x in dict_result[key]]).strip()
             if not tag:
                 continue
             yield tag
         elif key == 'Copyright Tag':
-            tag = '\n'.join(['series:{}'.format(x) for x in dict_result[key]])
+            tag = '\n'.join(['series:{}'.format(x) for x in dict_result[key]]).strip()
             if not tag:
                 continue
             yield tag
         elif key == 'Rating':
             if dict_result[key]:
-                tag = 'rating:{}'.format(dict_result[key][0])
+                tag = 'rating:{}'.format(dict_result[key][0]).strip()
                 yield tag
             else:
                 log.debug('Rating tag', v=dict_result[key])
@@ -71,7 +79,7 @@ def convert_tag_dict_to_string(dict_input):
             if key != 'General Tag':
                 # log unknown key
                 log.debug('Unknown key', v=key)
-            tag = '\n'.join([x for x in dict_result[key]])
+            tag = '\n'.join([x for x in dict_result[key]]).strip()
             if not tag:
                 continue
             yield tag
@@ -92,11 +100,86 @@ def convert_raw_to_hydrus(raw_input):
     return '\n'.join(result).strip()
 
 
+def is_url(path):
+    """Return True if path is url, False otherwise."""
+    scheme = urllib.parse.urlparse(path).scheme
+    if scheme in ('http', 'https'):
+        return True
+    return False
+
+
+def is_ext_equal(file_ext, imghdr_ext):
+    """compare file extension with result from imghdr_ext."""
+    if not imghdr_ext:
+        return False
+    if file_ext.lower() == '.{}'.format(imghdr_ext):
+        return True
+    if file_ext.lower() in ('.jpg', '.jpeg') and imghdr_ext == 'jpeg':
+        return True
+    return False
+
+
+def download(url, no_clobber):
+    """download url.
+
+    Args:
+        url: URL to be downloaded.
+        no_clobber: Skip download if file already exist.
+
+    Returns:
+        Downloaded filename or existing file if `no_clobber` is `True`
+    """
+    log = structlog.getLogger()
+
+    basename = os.path.basename(url)
+    if os.path.isfile(basename) and no_clobber:
+        return basename
+
+    response = requests.get(url, stream=True)
+    with open(basename, 'wb') as out_file:
+        shutil.copyfileobj(response.raw, out_file)
+    name, ext = os.path.splitext(basename)
+    imghdr_ext = imghdr.what(basename)
+    ext_equal = is_ext_equal(file_ext=ext, imghdr_ext=imghdr_ext)
+
+    if not imghdr_ext:
+        log.debug("imghdr can't recognize file", file=basename)
+        return basename
+    else:
+        new_basename = '{}.{}'.format(name, imghdr_ext)
+        new_basename_exist = os.path.isfile(new_basename)
+
+    if ext_equal:
+        log.debug('Extension is equal', file_ext=ext, imghdr_ext=imghdr_ext)
+        return basename
+    elif not ext_equal:
+        if new_basename_exist and not no_clobber:
+            log.debug('Replace existing file', old=basename, new=new_basename)
+            shutil.move(basename, new_basename)
+        elif not new_basename_exist:
+            log.debug('Rename file ext', file=basename, new_ext=imghdr_ext)
+            shutil.move(basename, new_basename)
+        else:
+            log.debug('Not replace/rename file', no_clobber=no_clobber, new_basename=new_basename)
+        return new_basename
+    else:
+        log.debug(
+            'Unknown condition',
+            file=basename,
+            ext_equal=ext_equal,
+            new_basename_exist=new_basename_exist,
+            imghdr_ext=imghdr_ext
+        )
+    # just return base name if any error happen
+    return basename
+
+
 @click.command()
 @click.option('--format', type=click.Choice(['raw', 'hydrus']), default='raw')
 @click.option('-d', '--debug', is_flag=True, help="Enable debug.")
+@click.option('-nc', '--no-clobber', is_flag=True, help="Skip download url when file.")
 @click.argument('path', nargs=-1)
-def main(format, path, debug):
+def main(format, path, debug, no_clobber):
     """get tag from illustration2vec."""
     if debug:
         logging.basicConfig(level=logging.DEBUG)
@@ -108,7 +191,14 @@ def main(format, path, debug):
     session = Session()
     try:
         for p in path:
-            print('path:{}'.format(os.path.basename(p)))
+            if os.path.isfile(p):
+                print('path:{}'.format(os.path.basename(p)))
+            elif is_url(p):
+                print('url:{}'.format(p))
+                p = download(p, no_clobber=no_clobber)
+            else:
+                log.error('Unknown path format or path is not exist', path=p)
+                continue
             tags = session.get_tags(path=p)
             log.debug('tags', v=tags)
             if format == 'hydrus':
