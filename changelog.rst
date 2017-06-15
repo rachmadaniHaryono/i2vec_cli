@@ -7,6 +7,8 @@ Changelog
 New
 ~~~
 
+- URL as input.[rachmadaniHaryono]
+
 - Logging feature. [rachmadaniHaryono]
 
 Fix
