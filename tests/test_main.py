@@ -58,3 +58,18 @@ def test_convert_raw_to_hyrus(raw_input, exp_output):
     from i2vec_cli.__main__ import convert_raw_to_hydrus
     result = convert_raw_to_hydrus(raw_input)
     assert result == '\n'.join(exp_output)
+
+
+@pytest.mark.parametrize('file_ext, imghdr_ext, exp_output', (
+    ('.jpg', 'jpeg', True),
+    ('.jpeg', 'jpeg', True),
+    ('.JPEG', 'jpeg', True),
+    ('.PNG', 'png', True),
+    ('.png', 'png', True),
+    ('.png', 'jpeg', False),
+    ('.png', None, False),
+))
+def test_is_ext_equal(file_ext, imghdr_ext, exp_output):
+    """test."""
+    from i2vec_cli.__main__ import is_ext_equal
+    assert exp_output == is_ext_equal(file_ext, imghdr_ext)
