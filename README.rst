@@ -101,6 +101,8 @@ clone the repo and pip install from this github.
    git clone https://github.com/rachmadaniHaryono/i2vec_cli
    cd i2vec_cli
    pip install .
+   # or to install it explicitly with python3
+   pip3 install .
 
 Requirements
 ^^^^^^^^^^^^
@@ -115,6 +117,28 @@ Compatibility
 -------------
 
 This program work on python 3 and tested on python 3.5
+
+FAQ
+---
+
+I got 'ImportError: No module named html.parser'?
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+It mean you are installing it with python 2 version. To fix it do the following:
+
+- Uninstall the program first:
+
+.. code:: bash
+
+ pip uninstall .
+
+
+- Reinstall the program using *pip3*
+
+.. code:: bash
+
+ pip3 install .
+
 
 Licence
 -------
