@@ -7,6 +7,8 @@ Changelog
 New
 ~~~
 
+- 'Close delay' option. [rachmadaniHaryono]
+
 - URL as input.[rachmadaniHaryono]
 
 - Logging feature. [rachmadaniHaryono]
