@@ -79,6 +79,18 @@ Starting v0.1.1 i2vec_cli also accept url as input, as example:
  crossover
  #... etc
 
+Starting v0.1.1 i2vec_cli accept `close delay` option so browser don't close directly after the job.
+Valid options for close delay are following::
+
+ - -1 : Script will wait till any keyboard press
+ - 0 : Script will close directly (default).
+ - >0 : Script will delay the close of this amount of time in seconds
+
+.. code:: bash
+
+ i2vec-cli cat.jpg --close-delay -1
+
+
 Installation
 ------------
 
