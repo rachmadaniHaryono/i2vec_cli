@@ -88,7 +88,10 @@ Valid options for close delay are following::
 
 .. code:: bash
 
+ # wait for user input after the job done.
  i2vec-cli cat.jpg --close-delay -1
+ # wait for 10 second after the job done
+ i2vec-cli cat.jpg --close-delay 10
 
 
 Installation
