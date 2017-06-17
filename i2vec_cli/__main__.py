@@ -5,11 +5,12 @@
 # <span style="color:red;">ERROR: Request Entity Too Large</span>
 from collections import OrderedDict
 from pprint import pprint
+import imghdr
 import logging
 import os
 import shutil
+import time
 import urllib
-import imghdr
 
 from splinter import Browser
 import click
@@ -174,12 +175,27 @@ def download(url, no_clobber):
     return basename
 
 
+def validate_close_delay(ctx, param, value):
+    """validate close delay."""
+    try:
+        value = int(value)
+    except Exception as e:
+        raise click.BadParameter(
+            'Error when validate close delay: value={}, error={}'.format(value, e))
+    if value >= -1:
+        return value
+    else:
+        raise click.BadParameter('Close delay have to be bigger or equal than -1')
+
+
 @click.command()
 @click.option('--format', type=click.Choice(['raw', 'hydrus']), default='raw')
 @click.option('-d', '--debug', is_flag=True, help="Enable debug.")
 @click.option('-nc', '--no-clobber', is_flag=True, help="Skip download url when file.")
+@click.option(
+    '--close-delay', default=0, help="Close delay of the program.", callback=validate_close_delay)
 @click.argument('path', nargs=-1)
-def main(format, path, debug, no_clobber):
+def main(format, path, debug, no_clobber, close_delay):
     """get tag from illustration2vec."""
     if debug:
         logging.basicConfig(level=logging.DEBUG)
@@ -187,6 +203,9 @@ def main(format, path, debug, no_clobber):
         logging.basicConfig(level=logging.INFO)
     structlog.configure_once(logger_factory=structlog.stdlib.LoggerFactory())
     log = structlog.getLogger()
+
+    if not path:
+        raise ValueError('PATH required.')
 
     session = Session()
     try:
@@ -207,6 +226,14 @@ def main(format, path, debug, no_clobber):
             else:
                 pprint(tags)
     finally:
+        if close_delay == -1:
+            click.pause()
+        elif close_delay == 0:
+            log.debug('No close delay')
+        elif close_delay > 0:
+            time.sleep(close_delay)
+        else:
+            log.error('Invalid close delay', v=close_delay)
         session.browser.quit()
 
 
