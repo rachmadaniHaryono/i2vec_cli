@@ -94,7 +94,7 @@ Valid options for close delay are following::
  i2vec-cli cat.jpg --close-delay 10
 
 Starting v0.1.1 user can decide which driver will be used.
-For each driver installation follow the [splinter document about driver](https://splinter.readthedocs.io/en/latest/).
+For each driver installation follow the `splinter document about driver`_
 
 .. code:: bash
 
@@ -166,3 +166,4 @@ Authors
 .. _`requests`: https://github.com/requests/requests
 .. _`splinter`: https://github.com/cobrateam/splinter
 .. _`structlog`: https://github.com/hynek/structlog
+.. _`splinter document about driver`: https://splinter.readthedocs.io/en/latest/
