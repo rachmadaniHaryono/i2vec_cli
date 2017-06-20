@@ -7,6 +7,8 @@ Changelog
 New
 ~~~
 
+- HTML table dump option for debugging [rachmadaniHaryono]
+
 - Driver option. [rachmadaniHaryono]
 
 - 'Close delay' option. [rachmadaniHaryono]

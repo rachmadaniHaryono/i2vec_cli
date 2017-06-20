@@ -21,6 +21,13 @@ import structlog
 from html_table_parser import HTMLTableParser
 
 
+def dump_html_to_file(html):
+    """dump html."""
+    filename = '{}.html'.format(time.strftime("%Y%m%d-%H%M%S"))
+    with open(filename, 'w') as ff:
+        ff.write(html)
+    print('HTML table dumped: {}'.format(filename))
+
 class Session:
     """session."""
 
@@ -35,7 +42,7 @@ class Session:
             self.browser = Browser(*driver)
         self.browser.visit('http://demo.illustration2vec.net/')
 
-    def get_tags(self, path):
+    def get_tags(self, path, dump_html=False):
         """get tags."""
         input_tags = self.browser.find_by_xpath("//input[contains(@id, 'ajax-upload-id')]")
         real_path = os.path.realpath(path)
@@ -48,6 +55,10 @@ class Session:
             else:
                 self.log.error('Input tag not found.')
         bb_tag = self.browser.find_by_css('.box-body')[1]
+        if dump_html:
+            import pdb
+            pdb.set_trace()
+            dump_html_to_file(bb_tag.html)
         p = HTMLTableParser()
         p.feed(bb_tag.html.strip())
         return p.tables
@@ -198,8 +209,9 @@ def validate_close_delay(ctx, param, value):
 @click.option(
     '--driver', default=None, help="Driver for browser.",
     type=click.Choice(['firefox', 'phantomjs', 'chrome', 'zope.testbrowser', 'django']))
+@click.option('--dump-html', is_flag=True, help="Dump html table for debugging.")
 @click.argument('path', nargs=-1)
-def main(format, path, debug, no_clobber, close_delay, driver=None):
+def main(format, path, debug, no_clobber, close_delay, driver=None, dump_html=False):
     """get tag from illustration2vec."""
     if debug:
         logging.basicConfig(level=logging.DEBUG)
@@ -222,7 +234,7 @@ def main(format, path, debug, no_clobber, close_delay, driver=None):
             else:
                 log.error('Unknown path format or path is not exist', path=p)
                 continue
-            tags = session.get_tags(path=p)
+            tags = session.get_tags(path=p, dump_html=dump_html)
             log.debug('tags', v=tags)
             if format == 'hydrus':
                 res = convert_raw_to_hydrus(tags)
