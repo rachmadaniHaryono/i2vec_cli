@@ -24,14 +24,15 @@ from html_table_parser import HTMLTableParser
 class Session:
     """session."""
 
-    def __init__(self):
+    def __init__(self, driver=None):
         """init."""
         self.log = structlog.getLogger()
+        driver = [] if driver is None else [driver]
         try:
-            self.browser = Browser()
+            self.browser = Browser(*driver)
         except OSError as e:
             self.log.debug('Expected init browser error', e=e)
-            self.browser = Browser()
+            self.browser = Browser(*driver)
         self.browser.visit('http://demo.illustration2vec.net/')
 
     def get_tags(self, path):
@@ -194,8 +195,11 @@ def validate_close_delay(ctx, param, value):
 @click.option('-nc', '--no-clobber', is_flag=True, help="Skip download url when file.")
 @click.option(
     '--close-delay', default=0, help="Close delay of the program.", callback=validate_close_delay)
+@click.option(
+    '--driver', default=None, help="Driver for browser.",
+    type=click.Choice(['firefox', 'phantomjs', 'chrome', 'zope.testbrowser', 'django']))
 @click.argument('path', nargs=-1)
-def main(format, path, debug, no_clobber, close_delay):
+def main(format, path, debug, no_clobber, close_delay, driver=None):
     """get tag from illustration2vec."""
     if debug:
         logging.basicConfig(level=logging.DEBUG)
@@ -207,7 +211,7 @@ def main(format, path, debug, no_clobber, close_delay):
     if not path:
         raise ValueError('PATH required.')
 
-    session = Session()
+    session = Session(driver=driver)
     try:
         for p in path:
             if os.path.isfile(p):

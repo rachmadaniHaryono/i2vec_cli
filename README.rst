@@ -93,6 +93,13 @@ Valid options for close delay are following::
  # wait for 10 second after the job done
  i2vec-cli cat.jpg --close-delay 10
 
+Starting v0.1.1 user can decide which driver will be used.
+For each driver installation follow the [splinter document about driver](https://splinter.readthedocs.io/en/latest/).
+
+.. code:: bash
+
+ # use chrome as driver
+ i2vec-cli cat.jpg --driver chrome
 
 Installation
 ------------

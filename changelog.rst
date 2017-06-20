@@ -7,6 +7,8 @@ Changelog
 New
 ~~~
 
+- Driver option. [rachmadaniHaryono]
+
 - 'Close delay' option. [rachmadaniHaryono]
 
 - URL as input.[rachmadaniHaryono]
