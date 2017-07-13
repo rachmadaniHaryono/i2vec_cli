@@ -1,6 +1,14 @@
 Changelog
 =========
 
+0.2.1 (unreleased)
+------------------
+
+Changes
+~~~~~~~
+
+- Change session to use requests instead of splinter. [rachmadaniHaryono]
+
 0.1.1 (unreleased)
 ------------------
 

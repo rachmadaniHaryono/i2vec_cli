@@ -16,7 +16,7 @@ import click
 import requests
 import structlog
 
-from i2vec_cli.splinter_session import Session
+from i2vec_cli.requests_session import Session
 
 
 def is_url(path):
