@@ -95,12 +95,11 @@ Example for close-delay option:
  # wait for 10 second after the job done
  i2vec-cli cat.jpg --close-delay 10
 
-Starting v0.2.0 i2vec_cli can be used as hydrus tag parser.
+Starting v0.2.0 i2vec_cli can be used as hydrus tag parser. Here are guide for the configuration::
 
  - First run i2vec-cli-server
  - Notice where the server run. The example below is used when the server run on 127.0.0.1:5000.
  - Copy the code below to clipboard.
-
  - Open Hydrus -> 'service' menu -> 'manage parsing script' menu -> 'import' button -> 'from clipboard' menu
  - Check if the server address is the same as in the i2vec-cli-server
 
