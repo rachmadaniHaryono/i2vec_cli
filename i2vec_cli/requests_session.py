@@ -34,7 +34,7 @@ def convert_raw_to_hydrus(raw_input):
 class Session:
     """session."""
 
-    def __init__(self):
+    def __init__(self, driver=None):
         """init."""
         self.session = requests.Session()
 
@@ -43,7 +43,7 @@ class Session:
         url = 'http://demo.illustration2vec.net/upload'
         files = {'image': open(path, 'rb')}
         res = self.session.post(url=url, files=files)
-        if res != 200:
+        if res.status_code != 200:
             return {}
         return res.json()
 
