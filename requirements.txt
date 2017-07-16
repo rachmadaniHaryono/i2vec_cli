@@ -2,4 +2,5 @@ click>=6.7
 requests>=2.18.1
 splinter>=0.7.5
 structlog>=17.2.0
+Flask>=0.12.2
 git+git://github.com/rachmadaniHaryono/html-table-parser-python3

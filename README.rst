@@ -86,6 +86,19 @@ Valid options for close delay are following::
  - 0 : Script will close directly (default).
  - >0 : Script will delay the close of this amount of time in seconds
 
+Starting v0.2.0 i2vec_cli can be used as hydrus tag parser.
+
+ - First run `i2vec-cli-server`
+ - Notice where the server run. The example below is used when the server run on 127.0.0.1:5000.
+ - Copy the code below to clipboard.
+
+.. code:: json
+
+ [32, "local i2vec", 1, ["http://127.0.0.1:5000/upload", 1, 0, 0, "file", {}, [[30, 1, ["we got sent back to main gallery page -- title test", 8, [27, 2, [[["head", {}, 0], ["title", {}, 0]], null, [0, 0, "", ""]]], [true, true, "Image List"]]], [30, 1, ["", 0, [27, 2, [[["li", {"class": "tag-type-general"}, null], ["a", {}, 1]], null, [0, 0, "", ""]]], ""]], [30, 1, ["", 0, [27, 2, [[["li", {"class": "tag-type-copyright"}, null], ["a", {}, 1]], null, [0, 0, "", ""]]], "series"]], [30, 1, ["", 0, [27, 2, [[["li", {"class": "tag-type-artist"}, null], ["a", {}, 1]], null, [0, 0, "", ""]]], "creator"]], [30, 1, ["", 0, [27, 2, [[["li", {"class": "tag-type-character"}, null], ["a", {}, 1]], null, [0, 0, "", ""]]], "character"]], [30, 1, ["we got sent back to main gallery page -- page links exist", 8, [27, 2, [[["div", {}, null]], "class", [0, 0, "", ""]]], [true, true, "pagination"]]]]]]
+
+ - Open Hydrus -> 'service' menu -> 'manage parsing script' menu -> 'import' button -> 'from clipboard' menu
+ - Check if the server address is the same as in the `i2vec-cli-server`
+
 .. code:: bash
 
  # wait for user input after the job done.
@@ -93,13 +106,6 @@ Valid options for close delay are following::
  # wait for 10 second after the job done
  i2vec-cli cat.jpg --close-delay 10
 
-Starting v0.1.1 user can decide which driver will be used.
-For each driver installation follow the `splinter document about driver`_
-
-.. code:: bash
-
- # use chrome as driver
- i2vec-cli cat.jpg --driver chrome
 
 Installation
 ------------
@@ -118,6 +124,7 @@ Requirements
 ^^^^^^^^^^^^
 
 - `click`_
+- `flask`_
 - `html-table-parser-python3`_
 - `requests`_
 - `splinter`_
@@ -162,6 +169,7 @@ Authors
 `i2vec_cli` was written by `Rachmadani Haryono <foreturiga@gmail.com>`_.
 
 .. _`click`: https://click.pocoo.org/4/
+.. _`flask`: http://flask.pocoo.org
 .. _`html-table-parser-python3`: https://github.com/rachmadaniHaryono/html-table-parser-python3
 .. _`requests`: https://github.com/requests/requests
 .. _`splinter`: https://github.com/cobrateam/splinter

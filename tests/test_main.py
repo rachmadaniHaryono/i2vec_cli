@@ -55,7 +55,7 @@ import pytest
 ])
 def test_convert_raw_to_hyrus(raw_input, exp_output):
     """test."""
-    from i2vec_cli.__main__ import convert_raw_to_hydrus
+    from i2vec_cli.splinter_session import convert_raw_to_hydrus
     result = convert_raw_to_hydrus(raw_input)
     assert result == '\n'.join(exp_output)
 

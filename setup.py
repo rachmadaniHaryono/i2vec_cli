@@ -33,7 +33,10 @@ setuptools.setup(
         'License :: OSI Approved :: MIT License',
     ],
     entry_points={
-        'console_scripts': ['i2vec-cli=i2vec_cli.__main__:main'],
+        'console_scripts': [
+            'i2vec-cli=i2vec_cli.__main__:main',
+            'i2vec-cli-server=i2vec_cli.server:main',
+        ],
     },
     zip_safe=False,
     # metadata for upload to PyPI

@@ -1,8 +1,13 @@
 Changelog
 =========
 
-0.2.1 (unreleased)
+0.2.0 (unreleased)
 ------------------
+
+New
+~~~
+
+- Server for hydrus [rachmadaniHaryono]
 
 Changes
 ~~~~~~~
