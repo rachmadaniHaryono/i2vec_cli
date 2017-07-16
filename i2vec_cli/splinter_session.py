@@ -1,3 +1,10 @@
+"""session using splinter.
+
+.. deprecated:: 2.0
+   Use requests_session instead.
+
+this is legacy code and will be replaced with requests_session.
+It will be kept here until further notice."""
 from collections import OrderedDict
 
 from html_table_parser import HTMLTableParser
