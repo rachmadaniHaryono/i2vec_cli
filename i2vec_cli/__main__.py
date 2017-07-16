@@ -120,13 +120,13 @@ def delay_close(close_delay):
 @click.command()
 @click.option('--format', type=click.Choice(['raw', 'hydrus']), default='raw')
 @click.option('-d', '--debug', is_flag=True, help="Enable debug.")
-@click.option('-nc', '--no-clobber', is_flag=True, help="Skip download url when file.")
+@click.option('-nc', '--no-clobber', is_flag=True, help="Skip download url when file exist.")
 @click.option(
     '--close-delay', default=0, help="Close delay of the program.", callback=validate_close_delay)
 @click.option(
-    '--driver', default=None, help="Driver for browser.",
+    '--driver', default=None, help="Driver for browser (deprecated).",
     type=click.Choice(['firefox', 'phantomjs', 'chrome', 'zope.testbrowser', 'django']))
-@click.option('--dump-html', is_flag=True, help="Dump html table for debugging.")
+@click.option('--dump-html', is_flag=True, help="Dump html table for debugging (deprecated).")
 @click.argument('path', nargs=-1)
 def main(format, path, debug, no_clobber, close_delay, driver=None, dump_html=False):
     """get tag from illustration2vec."""
