@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 from html_table_parser import HTMLTableParser
 from splinter import Browser
 import selenium
