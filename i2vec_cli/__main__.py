@@ -4,19 +4,25 @@
 # - error 'ERROR: Request Entity Too Large' for file 1.1 mb
 # <span style="color:red;">ERROR: Request Entity Too Large</span>
 from collections import OrderedDict
-from pprint import pprint
+from pathlib import Path
+from pprint import pformat
 import imghdr
 import logging
 import os
 import shutil
 import time
 import urllib
+import hashlib
 
 import click
 import requests
 import structlog
+import peewee
 
-from i2vec_cli.requests_session import Session
+from i2vec_cli import models
+from i2vec_cli.requests_session import Session, convert_raw_to_hydrus
+from i2vec_cli.sha256 import sha256_checksum
+from i2vec_cli.utils import user_data_dir
 
 
 def is_url(path):
@@ -108,6 +114,7 @@ def validate_close_delay(ctx, param, value):
 
 def delay_close(close_delay):
     """delay when closing the program."""
+    log = structlog.getLogger()
     if close_delay == -1:
         click.pause()
     elif close_delay == 0:
@@ -116,6 +123,38 @@ def delay_close(close_delay):
         time.sleep(close_delay)
     else:
         log.error('Invalid close delay', v=close_delay)
+
+
+def md5_checksum(fname):
+    hash_md5 = hashlib.md5()
+    with open(fname, "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            hash_md5.update(chunk)
+    return hash_md5.hexdigest()
+
+
+def get_print_result(path, db_path, format):
+    """get print result."""
+    # compatibility
+    p = path
+
+    sha256 = sha256_checksum(p)
+    md5 = md5_checksum(p)
+    load_res = models.load_result(db=db_path, sha256=sha256, md5=md5)
+    if load_res:
+        tags = {'prediction': load_res}
+    else:
+        tags = session.get_tags(path=p, dump_html=dump_html)
+        try:
+            models.save_result(
+                db=db_path, sha256=sha256, md5=md5, prediction=tags['prediction'])
+        except peewee.IntegrityError as e:
+            log.debug(str(e))
+    if format == 'hydrus':
+        return convert_raw_to_hydrus(tags)
+    else:
+        return pformat(tags['prediction'])
+
 
 @click.command()
 @click.option('--format', type=click.Choice(['raw', 'hydrus']), default='raw')
@@ -140,6 +179,17 @@ def main(format, path, debug, no_clobber, close_delay, driver=None, dump_html=Fa
     if not path:
         raise ValueError('PATH required.')
 
+
+    db_path = os.path.join(user_data_dir, 'main.db')
+    os.makedirs(user_data_dir, exist_ok=True)
+    if not os.path.isfile(db_path):
+        Path(db_path).touch()
+    models.database.init(db_path)
+    try:
+        models.init_all_tables()
+    except peewee.OperationalError:
+        log.debug('Table already created')
+
     session = Session(driver=driver)
     try:
         for p in path:
@@ -151,11 +201,8 @@ def main(format, path, debug, no_clobber, close_delay, driver=None, dump_html=Fa
             else:
                 log.error('Unknown path format or path is not exist', path=p)
                 continue
-            tags = session.get_tags(path=p, dump_html=dump_html)
-            if format == 'hydrus':
-                print(session.get_hydrus_tags(path=p, dump_html=dump_html))
-            else:
-                pprint(session.get_tags(path=p, dump_html=dump_html))
+            result = get_print_result(path=p, db_path=db_path, format=format)
+            print(result)
     finally:
         delay_close(close_delay)
         if hasattr(session, 'browser'):
