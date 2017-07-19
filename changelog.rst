@@ -7,6 +7,8 @@ Changelog
 New
 ~~~
 
+- Database support with peewee [rachmadaniHaryono]
+
 - Server for hydrus [rachmadaniHaryono]
 
 Changes
