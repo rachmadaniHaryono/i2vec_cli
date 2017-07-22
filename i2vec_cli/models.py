@@ -4,7 +4,7 @@ import os
 from peewee import *
 import peewee
 
-from i2vec_cli.utils import user_data_dir
+from i2vec_cli.utils import user_data_dir, thumb_folder
 
 
 database = SqliteDatabase(None)
@@ -18,6 +18,17 @@ class BaseModel(Model):
 class Image(BaseModel):
     sha256 = CharField(unique=True)
     md5 = CharField()
+
+    @property
+    def thumb_filename(self):
+        return '{}.jpg'.format(self.sha256)
+
+    @property
+    def thumb_exist(self):
+        thumb_path = os.path.join(thumb_folder, thumb_filename)
+        if os.path.isfile(thumb_path):
+            return True
+        return False
 
 
 class TagRelationship(BaseModel):
