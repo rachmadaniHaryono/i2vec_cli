@@ -1,0 +1,10 @@
+{% extends "layout.html" %}
+{% block body %}
+  <div>
+  {% for entry in entries %}
+    <img src="{{ url_for('thumbnail', filename=entry.thumb_filename) }}" alt="" />
+  {% else %}
+    <em>No tag found</em>
+  {% endfor %}
+  </div>
+{% endblock %}
