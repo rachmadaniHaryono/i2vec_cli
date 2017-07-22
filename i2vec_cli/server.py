@@ -3,12 +3,14 @@ from flask import (
     Flask,
     render_template,
     request,
+    send_from_directory,
 )
 from send2trash import send2trash
 
 from i2vec_cli.requests_session import Session
 from i2vec_cli.__main__ import get_print_result
-from i2vec_cli.utils import user_data_dir
+from i2vec_cli.utils import user_data_dir, thumb_folder
+from i2vec_cli import models
 
 
 app = Flask(__name__)
@@ -41,6 +43,7 @@ def convert_raw_to_flask_template(raw_input):
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
+    models.database.init(db_path)
     db_path = os.path.join(user_data_dir, 'main.db')
     session = Session()
     path = request.files['file']
@@ -50,6 +53,19 @@ def upload_file():
     entries = convert_raw_to_flask_template(tags)
     send2trash(path.filename)
     return render_template('upload_result.html', entries=entries)
+
+
+@app.route('/')
+def index():
+    db_path = os.path.join(user_data_dir, 'main.db')
+    models.database.init(db_path)
+    img_matches = [x for x in models.Image.select()]
+    return render_template('index.html', entries=img_matches)
+
+
+@app.route('/thumb/<path:filename>')
+def thumbnail(filename):
+    return send_from_directory(thumb_folder, filename)
 
 
 def main():
