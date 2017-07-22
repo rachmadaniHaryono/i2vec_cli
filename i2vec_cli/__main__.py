@@ -23,7 +23,7 @@ from PIL import Image
 from i2vec_cli import models
 from i2vec_cli.requests_session import Session, convert_raw_to_hydrus
 from i2vec_cli.sha256 import sha256_checksum
-from i2vec_cli.utils import user_data_dir
+from i2vec_cli.utils import user_data_dir, thumb_folder
 
 
 def is_url(path):
@@ -202,13 +202,12 @@ def main(format, path, debug, no_clobber, close_delay, driver=None, dump_html=Fa
     if not path:
         raise ValueError('PATH required.')
 
-
-    db_path = os.path.join(user_data_dir, 'main.db')
+    # init folder
     os.makedirs(user_data_dir, exist_ok=True)
-
-    thumb_folder = os.path.join(user_data_dir, 'thumb')
     os.makedirs(thumb_folder, exist_ok=True)
 
+    # database
+    db_path = os.path.join(user_data_dir, 'main.db')
     if not os.path.isfile(db_path):
         Path(db_path).touch()
     models.database.init(db_path)
