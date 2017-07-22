@@ -18,6 +18,7 @@ import click
 import requests
 import structlog
 import peewee
+from PIL import Image
 
 from i2vec_cli import models
 from i2vec_cli.requests_session import Session, convert_raw_to_hydrus
@@ -133,23 +134,45 @@ def md5_checksum(fname):
     return hash_md5.hexdigest()
 
 
-def get_print_result(path, db_path, format):
+def create_thumbnail(path, thumb_path):
+    """create thumbnail."""
+    size = 320, 320
+    try:
+        im = Image.open(path)
+        im.thumbnail(size)
+        im.save(thumb_path, "JPEG")
+    except IOError:
+        raise IOError("cannot create thumbnail for", path)
+
+
+def get_print_result(path, db_path, format, session):
     """get print result."""
     # compatibility
     p = path
 
     sha256 = sha256_checksum(p)
     md5 = md5_checksum(p)
-    load_res = models.load_result(db=db_path, sha256=sha256, md5=md5)
+    thumb_path = os.path.join(user_data_dir, 'thumb', '{}.jpg'.format(sha256))
+    try:
+        load_res = models.load_result(db=db_path, sha256=sha256, md5=md5)
+    except models.Image.DoesNotExist:
+        load_res = None
     if load_res:
         tags = {'prediction': load_res}
     else:
-        tags = session.get_tags(path=p, dump_html=dump_html)
+        tags = session.get_tags(path=p)
         try:
             models.save_result(
                 db=db_path, sha256=sha256, md5=md5, prediction=tags['prediction'])
         except peewee.IntegrityError as e:
             log.debug(str(e))
+        except keyError as e:
+            log.debug(str(tags))
+    if not os.path.isfile(thumb_path):
+        create_thumbnail(p, thumb_path)
+
+    if format == 'dict':
+        return tags
     if format == 'hydrus':
         return convert_raw_to_hydrus(tags)
     else:
@@ -182,6 +205,10 @@ def main(format, path, debug, no_clobber, close_delay, driver=None, dump_html=Fa
 
     db_path = os.path.join(user_data_dir, 'main.db')
     os.makedirs(user_data_dir, exist_ok=True)
+
+    thumb_folder = os.path.join(user_data_dir, 'thumb')
+    os.makedirs(thumb_folder, exist_ok=True)
+
     if not os.path.isfile(db_path):
         Path(db_path).touch()
     models.database.init(db_path)
@@ -201,7 +228,8 @@ def main(format, path, debug, no_clobber, close_delay, driver=None, dump_html=Fa
             else:
                 log.error('Unknown path format or path is not exist', path=p)
                 continue
-            result = get_print_result(path=p, db_path=db_path, format=format)
+            result = get_print_result(
+                path=p, db_path=db_path, format=format, session=session)
             print(result)
     finally:
         delay_close(close_delay)
