@@ -43,8 +43,8 @@ def convert_raw_to_flask_template(raw_input):
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
-    models.database.init(db_path)
     db_path = os.path.join(user_data_dir, 'main.db')
+    models.database.init(db_path)
     session = Session()
     path = request.files['file']
     path.save(path.filename)
