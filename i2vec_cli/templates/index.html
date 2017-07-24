@@ -1,10 +1,32 @@
 {% extends "layout.html" %}
+
 {% block body %}
-  <div>
+<div class="card-columns container">
   {% for entry in entries %}
-    <img src="{{ url_for('thumbnail', filename=entry.thumb_filename) }}" alt="" />
-  {% else %}
-    <em>No tag found</em>
-  {% endfor %}
+  <div class="card">
+    <img class="card-img img-fluid rounded mx-auto d-block" src="{{ url_for('thumbnail', filename=entry.thumb_filename) }}" alt="" />
+    <table class="table-sm mx-auto">
+      <thead>
+        <tr>
+          <th>Tag</th>
+          <th>Confidence</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for tag in entry.tags %}
+        <tr>
+          <td>{{ tag.name }}</td>
+          {% set conf_in_percent = tag.confidence * 100 %}
+          <td class="text-right">{{'%0.1f' % conf_in_percent|float}}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
   </div>
+  {% else %}
+  <div class="card">
+    <em>No tag found</em>
+  </div>
+  {% endfor %}
+</div>
 {% endblock %}
