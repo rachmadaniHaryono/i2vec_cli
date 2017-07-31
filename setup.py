@@ -1,10 +1,4 @@
 """setup."""
-# NOTE:
-# install_requires removed right now
-# because can't install dependency link on html-table-parser-python3.
-# if html-table-parser-python3 already on pypi,
-# then move required package from requirements.txt to here.
-# right now install required package with `pip install -r requirements.txt`
 import setuptools
 
 description = "Use illustration2vec on cli"
@@ -12,6 +6,17 @@ try:
     long_description = open("README.rst").read()
 except IOError:
     long_description = description
+
+
+install_requires = [
+    'appdirs>=1.4.3',
+    'click>=6.7',
+    'Flask>=0.12.2',
+    'peewee>=2.10.1',
+    'Pillow>=4.2.1',
+    'requests>=2.18.1',
+    'structlog>=17.2.0',
+]
 
 
 setuptools.setup(
@@ -38,6 +43,7 @@ setuptools.setup(
             'i2vec-cli-server=i2vec_cli.server:main',
         ],
     },
+    install_requires=install_requires,
     zip_safe=False,
     # metadata for upload to PyPI
     # taken and modified from http://setuptools.readthedocs.io/en/latest/setuptools.html
