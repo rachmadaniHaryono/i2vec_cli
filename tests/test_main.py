@@ -1,7 +1,7 @@
 """test main."""
 import pytest
 
-
+@pytest.mark.skip(reason="splinter is not used anymore")
 @pytest.mark.parametrize("raw_input, exp_output", [
     (
         [
