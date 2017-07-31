@@ -7,6 +7,10 @@ Changelog
 New
 ~~~
 
+- Travis configuration [rachmadaniHaryono]
+
+- Add required package to setup file [rachmadaniHaryono]
+
 - Database support with peewee [rachmadaniHaryono]
 
 - Server for hydrus [rachmadaniHaryono]
