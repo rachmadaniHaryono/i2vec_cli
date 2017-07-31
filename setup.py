@@ -15,6 +15,7 @@ install_requires = [
     'peewee>=2.10.1',
     'Pillow>=4.2.1',
     'requests>=2.18.1',
+    'Send2Trash==1.3.0',
     'structlog>=17.2.0',
 ]
 
